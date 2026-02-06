@@ -1,0 +1,441 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Conversation Analyzer Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .number {
+            color: #667eea;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        
+        .search-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        
+        .search-box button {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .search-box button:hover {
+            background: #5568d3;
+        }
+        
+        .outcomes-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .outcomes-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .outcome-item {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .outcome-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .outcome-item:last-child {
+            border-bottom: none;
+        }
+        
+        .outcome-name {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .outcome-count {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .result-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result-section.active {
+            display: block;
+        }
+        
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .signal-card {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .signal-card h4 {
+            color: #333;
+            margin-bottom: 10px;
+            text-transform: capitalize;
+        }
+        
+        .signal-card .count {
+            color: #667eea;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .example-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #ffd700;
+        }
+        
+        .example-box .speaker {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .example-box .text {
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Conversation Analyzer Dashboard</h1>
+            <p>Discover why conversations lead to bad outcomes</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Conversations</h3>
+                <div class="number">5,037</div>
+            </div>
+            <div class="stat-card">
+                <h3>Different Outcomes</h3>
+                <div class="number">41</div>
+            </div>
+            <div class="stat-card">
+                <h3>Most Common</h3>
+                <div class="number">Escalation - Repeate...</div>
+            </div>
+        </div>
+        
+        <div class="search-section">
+            <h2>🔎 Analyze an Outcome</h2>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Type outcome name (e.g., 'escalation', 'fraud', 'claim')">
+                <button onclick="analyzeOutcome()">Analyze</button>
+            </div>
+            <div id="searchResults"></div>
+        </div>
+        
+        <div class="outcomes-section">
+            <h2>📊 Top 10 Outcomes</h2>
+
+            <div class="outcome-item" onclick="analyzeSpecific('Escalation - Repeated Service Failures')">
+                <div class="outcome-name">
+                    Escalation - Repeated Service Failures
+                    <span class="badge">490 cases</span>
+                </div>
+                <div class="outcome-count">9.7% of all conversations</div>
+            </div>
+
+            <div class="outcome-item" onclick="analyzeSpecific('Appointment Scheduling')">
+                <div class="outcome-name">
+                    Appointment Scheduling
+                    <span class="badge">424 cases</span>
+                </div>
+                <div class="outcome-count">8.4% of all conversations</div>
+            </div>
+
+            <div class="outcome-item" onclick="analyzeSpecific('Service Interruptions')">
+                <div class="outcome-name">
+                    Service Interruptions
+                    <span class="badge">391 cases</span>
+                </div>
+                <div class="outcome-count">7.8% of all conversations</div>
+            </div>
+
+            <div class="outcome-item" onclick="analyzeSpecific('Escalation - Threat of Legal Action')">
+                <div class="outcome-name">
+                    Escalation - Threat of Legal Action
+                    <span class="badge">375 cases</span>
+                </div>
+                <div class="outcome-count">7.4% of all conversations</div>
+            </div>
+
+            <div class="outcome-item" onclick="analyzeSpecific('Account Access Issues')">
+                <div class="outcome-name">
+                    Account Access Issues
+                    <span class="badge">371 cases</span>
+                </div>
+                <div class="outcome-count">7.4% of all conversations</div>
+            </div>
+
+            <div class="outcome-item" onclick="analyzeSpecific('Claim Denials')">
+                <div class="outcome-name">
+                    Claim Denials
+                    <span class="badge">326 cases</span>
+                </div>
+                <div class="outcome-count">6.5% of all conversations</div>
+            </div>
+
+            <div class="outcome-item" onclick="analyzeSpecific('Delivery Investigation')">
+                <div class="outcome-name">
+                    Delivery Investigation
+                    <span class="badge">319 cases</span>
+                </div>
+                <div class="outcome-count">6.3% of all conversations</div>
+            </div>
+
+            <div class="outcome-item" onclick="analyzeSpecific('Fraud Alert Investigation')">
+                <div class="outcome-name">
+                    Fraud Alert Investigation
+                    <span class="badge">265 cases</span>
+                </div>
+                <div class="outcome-count">5.3% of all conversations</div>
+            </div>
+
+            <div class="outcome-item" onclick="analyzeSpecific('Multiple Issues - Returns & Account Inquiries')">
+                <div class="outcome-name">
+                    Multiple Issues - Returns & Account Inquiries
+                    <span class="badge">178 cases</span>
+                </div>
+                <div class="outcome-count">3.5% of all conversations</div>
+            </div>
+
+            <div class="outcome-item" onclick="analyzeSpecific('Multiple Issues - Order Status, Billing & Account')">
+                <div class="outcome-name">
+                    Multiple Issues - Order Status, Billing & Account
+                    <span class="badge">175 cases</span>
+                </div>
+                <div class="outcome-count">3.5% of all conversations</div>
+            </div>
+
+        </div>
+        
+        <div class="result-section" id="resultSection">
+            <h2>📈 Analysis Results</h2>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        function analyzeOutcome() {
+            const query = document.getElementById('searchInput').value;
+            if (!query) return;
+            
+            // Show loading
+            document.getElementById('searchResults').innerHTML = '<div class="loading">Searching...</div>';
+            
+            // In a real app, this would call the Python backend
+            // For now, we'll simulate with the first matching outcome
+            analyzeSpecific(query);
+        }
+        
+        function analyzeSpecific(outcomeName) {
+            // Show result section
+            const resultSection = document.getElementById('resultSection');
+            resultSection.classList.add('active');
+            
+            // Scroll to results
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+            
+            // Show loading
+            document.getElementById('resultContent').innerHTML = '<div class="loading">Analyzing conversations...</div>';
+            
+            // Simulate analysis (in real app, this would call Python)
+            setTimeout(() => {
+                showResults(outcomeName);
+            }, 500);
+        }
+        
+        function showResults(outcomeName) {
+            // This would normally come from the Python analyzer
+            const mockResults = {
+                signals: {
+                    angry: { count: 15, percent: 45 },
+                    threat: { count: 8, percent: 24 },
+                    repeat: { count: 12, percent: 36 },
+                    wait: { count: 6, percent: 18 }
+                },
+                examples: {
+                    angry: [
+                        { speaker: 'Customer', text: "I'm extremely frustrated with this service!" }
+                    ],
+                    threat: [
+                        { speaker: 'Customer', text: "I'm going to contact my lawyer about this." }
+                    ],
+                    repeat: [
+                        { speaker: 'Customer', text: "This is the third time I've called about this issue!" }
+                    ]
+                }
+            };
+            
+            let html = `
+                <h3 style="color: #333; margin-bottom: 20px;">Outcome: ${outcomeName}</h3>
+                
+                <h4 style="color: #666; margin: 20px 0 10px 0;">🎯 Negative Signals Found:</h4>
+                <div class="signal-grid">
+            `;
+            
+            for (const [category, data] of Object.entries(mockResults.signals)) {
+                const categoryName = category.charAt(0).toUpperCase() + category.slice(1) + ' Words';
+                html += `
+                    <div class="signal-card">
+                        <h4>${categoryName}</h4>
+                        <div class="count">${data.count}</div>
+                        <div style="color: #666; font-size: 14px;">${data.percent}% of conversations</div>
+                    </div>
+                `;
+            }
+            
+            html += `
+                </div>
+                
+                <h4 style="color: #666; margin: 30px 0 10px 0;">💬 Example Evidence:</h4>
+            `;
+            
+            for (const [category, examples] of Object.entries(mockResults.examples)) {
+                if (examples && examples.length > 0) {
+                    html += `<h5 style="color: #333; margin: 15px 0 10px 0; text-transform: capitalize;">${category} Examples:</h5>`;
+                    examples.forEach(ex => {
+                        html += `
+                            <div class="example-box">
+                                <div class="speaker">${ex.speaker}:</div>
+                                <div class="text">${ex.text}</div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+            
+            document.getElementById('resultContent').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
